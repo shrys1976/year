@@ -5,4 +5,7 @@
     <color name="dot_past">#FFFFFF</color>
     <color name="dot_future">#666666</color>
     <color name="widget_bg">#000000</color>
+    <color name="year_grey_text">#888888</color>
+    <color name="year_divider">#333333</color>
+    <color name="year_button_bg">#FFFFFF</color>
 </resources>

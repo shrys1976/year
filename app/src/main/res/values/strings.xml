@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">YEAR</string>
     <string name="widget_description">Year progress widget</string>
-    <string name="main_instruction">Add the YEAR widget to your home screen.</string>
+    <string name="main_title">The year, as it passes</string>
+    <string name="main_subtitle">One dot, one day</string>
+    <string name="btn_add_widget">add widget</string>
 </resources>
