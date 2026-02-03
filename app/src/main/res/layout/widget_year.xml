@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="@dimen/widget_padding">
+    android:padding="@dimen/widget_padding"
+    android:clipToPadding="false">
 
-    <GridLayout
-        android:id="@+id/dot_grid"
+    <ImageView
+        android:id="@+id/dot_bitmap"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnCount="20"
-        android:rowCount="19"
-        android:alignmentMode="alignMargins"
-        android:useDefaultMargins="false" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/app_name" />
 
 </FrameLayout>
