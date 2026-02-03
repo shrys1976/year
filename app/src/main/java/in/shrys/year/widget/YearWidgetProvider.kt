@@ -3,6 +3,7 @@ package `in`.shrys.year.widget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.graphics.*
 import android.widget.RemoteViews
 import `in`.shrys.year.R
 import java.time.LocalDate
@@ -14,89 +15,77 @@ class YearWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-
-        for (widgetId in appWidgetIds) {
-            updateWidget(context, appWidgetManager, widgetId)
+        for (id in appWidgetIds) {
+            updateWidget(context, appWidgetManager, id)
         }
-    }
-
-    override fun onEnabled(context: Context) {
-        super.onEnabled(context)
-        // Scheduler will be used later
-    }
-
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
     }
 
     private fun updateWidget(
         context: Context,
-        appWidgetManager: AppWidgetManager,
+        manager: AppWidgetManager,
         widgetId: Int
     ) {
 
         val views = RemoteViews(context.packageName, R.layout.widget_year)
 
-        val today = LocalDate.now()
-        val dayOfYear = today.dayOfYear
-        val totalDays = if (today.isLeapYear) 366 else 365
+        val bitmap = drawYearBitmap()
 
-        renderDots(views, dayOfYear, totalDays)
+        views.setImageViewBitmap(R.id.dot_bitmap, bitmap)
 
-        appWidgetManager.updateAppWidget(widgetId, views)
+        manager.updateAppWidget(widgetId, views)
     }
 
-    private fun renderDots(
-        views: RemoteViews,
-        dayOfYear: Int,
-        totalDays: Int
-    ) {
+private fun drawYearBitmap(): Bitmap {
 
-        val maxDots = GRID_ROWS * GRID_COLS
+    val width = 800
+    val height = 800   // square = nicer grid
 
-        for (i in 0 until maxDots) {
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
 
-            val dotId = getDotId(i)
+    val today = LocalDate.now()
+    val dayOfYear = today.dayOfYear
+    val totalDays = if (today.isLeapYear) 366 else 365
 
-            if (dotId == 0) continue
+    val rows = 20
+    val cols = 19   // 20x19 = 380 capacity
 
-            when {
-                i >= totalDays -> {
-                    views.setViewVisibility(dotId, android.view.View.INVISIBLE)
-                }
+    val dotPaintPast = Paint().apply {
+        color = Color.WHITE
+        isAntiAlias = true
+    }
 
-                i < dayOfYear -> {
-                    views.setViewVisibility(dotId, android.view.View.VISIBLE)
-                    views.setInt(
-                        dotId,
-                        "setBackgroundResource",
-                        R.drawable.dot_white
-                    )
-                }
+    val dotPaintFuture = Paint().apply {
+        color = Color.parseColor("#666666")
+        isAntiAlias = true
+    }
 
-                else -> {
-                    views.setViewVisibility(dotId, android.view.View.VISIBLE)
-                    views.setInt(
-                        dotId,
-                        "setBackgroundResource",
-                        R.drawable.dot_grey
-                    )
-                }
-            }
+    val spacingX = width / cols.toFloat()
+    val spacingY = height / rows.toFloat()
+
+    val dotRadius = minOf(spacingX, spacingY) * 0.3f
+
+    var index = 0
+
+    for (row in 0 until rows) {
+        for (col in 0 until cols) {
+
+            if (index >= totalDays) continue
+
+            val x = col * spacingX + spacingX / 2
+            val y = row * spacingY + spacingY / 2
+
+            val paint =
+                if (index < dayOfYear) dotPaintPast
+                else dotPaintFuture
+
+            canvas.drawCircle(x, y, dotRadius, paint)
+
+            index++
         }
     }
 
-    private fun getDotId(index: Int): Int {
-        return try {
-            val name = "dot_$index"
-            R.id::class.java.getField(name).getInt(null)
-        } catch (e: Exception) {
-            0
-        }
-    }
+    return bitmap
+}
 
-    companion object {
-        const val GRID_ROWS = 19
-        const val GRID_COLS = 20
-    }
 }

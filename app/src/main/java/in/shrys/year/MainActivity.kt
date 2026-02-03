@@ -18,6 +18,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val btnAddWidget = findViewById<Button>(R.id.btn_add_widget)
+        btnAddWidget.setOnTouchListener { v, event ->
+
+    when (event.action) {
+
+        android.view.MotionEvent.ACTION_DOWN -> {
+            v.animate()
+                .scaleX(0.96f)
+                .scaleY(0.96f)
+                .setDuration(80)
+                .start()
+        }
+
+        android.view.MotionEvent.ACTION_UP,
+        android.view.MotionEvent.ACTION_CANCEL -> {
+            v.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(120)
+                .start()
+        }
+    }
+
+    false // important → allows click event to still trigger
+}
+
         btnAddWidget.setOnClickListener {
             requestWidgetPin()
         }
