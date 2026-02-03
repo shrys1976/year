@@ -167,16 +167,25 @@
 
     <!-- Add Widget Button -->
     
-  <Button
+    <Button
     android:id="@+id/btn_add_widget"
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:layout_marginHorizontal="48dp"
+
     android:text="@string/btn_add_widget"
-    android:textColor="@color/black"
+    android:textColor="#000000"
     android:textSize="16sp"
     android:textAllCaps="false"
-    android:background="@drawable/button_background" />
+
+    android:background="@drawable/button_background"
+    android:foreground="?attr/selectableItemBackground"
+
+    android:elevation="4dp"
+
+    android:clickable="true"
+    android:focusable="true"/>
+
 
 
 </LinearLayout>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dot_size">4dp</dimen>
-    <dimen name="dot_margin">1dp</dimen>
-    <dimen name="widget_padding">8dp</dimen>
+    <dimen name="dot_size">6dp</dimen>
+    <dimen name="dot_margin">2dp</dimen>
+    <dimen name="widget_padding">16dp</dimen>
     <dimen name="widget_corner_radius">8dp</dimen>
 </resources>
