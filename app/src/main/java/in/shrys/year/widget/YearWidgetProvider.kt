@@ -3,16 +3,10 @@ package `in`.shrys.year.widget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.view.View
 import android.widget.RemoteViews
 import `in`.shrys.year.R
-import `in`.shrys.year.util.DateUtils
-import `in`.shrys.year.util.WidgetUpdateScheduler
+import java.time.LocalDate
 
-/**
- * Widget provider for the YEAR widget.
- * Displays the current year's progress as a 7x53 dot grid.
- */
 class YearWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
@@ -20,94 +14,89 @@ class YearWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        for (appWidgetId in appWidgetIds) {
-            updateWidget(context, appWidgetManager, appWidgetId)
+
+        for (widgetId in appWidgetIds) {
+            updateWidget(context, appWidgetManager, widgetId)
         }
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        WidgetUpdateScheduler.scheduleDailyUpdate(context)
+        // Scheduler will be used later
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        WidgetUpdateScheduler.cancelDailyUpdate(context)
     }
 
     private fun updateWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetId: Int
+        widgetId: Int
     ) {
+
         val views = RemoteViews(context.packageName, R.layout.widget_year)
 
-        val currentYear = DateUtils.getCurrentYear()
-        val dayOfYear = DateUtils.getDayOfYear()
-        val daysInYear = DateUtils.getDaysInYear(currentYear)
+        val today = LocalDate.now()
+        val dayOfYear = today.dayOfYear
+        val totalDays = if (today.isLeapYear) 366 else 365
 
-        // Update all 371 dots (7 rows x 53 columns)
-        updateDots(views, dayOfYear, daysInYear)
+        renderDots(views, dayOfYear, totalDays)
 
-        appWidgetManager.updateAppWidget(appWidgetId, views)
+        appWidgetManager.updateAppWidget(widgetId, views)
     }
 
-    /**
-     * Updates the visibility and color of all dots in the grid.
-     * Grid layout: 7 rows (one per weekday) x 53 columns (weeks).
-     * Days are laid out column by column (week by week).
-     */
-    private fun updateDots(views: RemoteViews, dayOfYear: Int, daysInYear: Int) {
-        for (row in 0 until ROWS) {
-            for (col in 0 until COLS) {
-                val dotIndex = col * ROWS + row + 1  // 1-based day number
-                val dotId = getDotResourceId(row, col)
+    private fun renderDots(
+        views: RemoteViews,
+        dayOfYear: Int,
+        totalDays: Int
+    ) {
 
-                when {
-                    dotIndex > daysInYear -> {
-                        // Hide dots beyond the year's length
-                        views.setViewVisibility(dotId, View.INVISIBLE)
-                    }
-                    dotIndex <= dayOfYear -> {
-                        // Past days: white dot
-                        views.setViewVisibility(dotId, View.VISIBLE)
-                        views.setInt(dotId, "setBackgroundResource", R.drawable.dot_white)
-                    }
-                    else -> {
-                        // Future days: grey dot
-                        views.setViewVisibility(dotId, View.VISIBLE)
-                        views.setInt(dotId, "setBackgroundResource", R.drawable.dot_grey)
-                    }
+        val maxDots = GRID_ROWS * GRID_COLS
+
+        for (i in 0 until maxDots) {
+
+            val dotId = getDotId(i)
+
+            if (dotId == 0) continue
+
+            when {
+                i >= totalDays -> {
+                    views.setViewVisibility(dotId, android.view.View.INVISIBLE)
+                }
+
+                i < dayOfYear -> {
+                    views.setViewVisibility(dotId, android.view.View.VISIBLE)
+                    views.setInt(
+                        dotId,
+                        "setBackgroundResource",
+                        R.drawable.dot_white
+                    )
+                }
+
+                else -> {
+                    views.setViewVisibility(dotId, android.view.View.VISIBLE)
+                    views.setInt(
+                        dotId,
+                        "setBackgroundResource",
+                        R.drawable.dot_grey
+                    )
                 }
             }
         }
     }
 
-    /**
-     * Returns the resource ID for a dot at the given row and column.
-     * Dots are named dot_r{row}_c{col} in the layout.
-     */
-    private fun getDotResourceId(row: Int, col: Int): Int {
-        return DOT_IDS[row][col]
+    private fun getDotId(index: Int): Int {
+        return try {
+            val name = "dot_$index"
+            R.id::class.java.getField(name).getInt(null)
+        } catch (e: Exception) {
+            0
+        }
     }
 
     companion object {
-        const val ROWS = 7
-        const val COLS = 53
-
-        // Pre-computed dot resource IDs for performance
-        // Generated programmatically in the layout as dot_r{row}_c{col}
-        val DOT_IDS: Array<IntArray> by lazy {
-            Array(ROWS) { row ->
-                IntArray(COLS) { col ->
-                    val fieldName = "dot_r${row}_c${col}"
-                    try {
-                        R.id::class.java.getField(fieldName).getInt(null)
-                    } catch (e: Exception) {
-                        0
-                    }
-                }
-            }
-        }
+        const val GRID_ROWS = 19
+        const val GRID_COLS = 20
     }
 }
