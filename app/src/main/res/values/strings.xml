@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">YEAR</string>
+    <string name="app_name">Year</string>
     <string name="widget_description">Year progress widget</string>
     <string name="main_title">The year, as it passes</string>
     <string name="main_subtitle">One dot, one day</string>
