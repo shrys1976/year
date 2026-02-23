@@ -3,6 +3,7 @@ package `in`.shrys.year
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,29 +20,25 @@ class MainActivity : AppCompatActivity() {
 
         val btnAddWidget = findViewById<Button>(R.id.btn_add_widget)
         btnAddWidget.setOnTouchListener { v, event ->
-
-    when (event.action) {
-
-        android.view.MotionEvent.ACTION_DOWN -> {
-            v.animate()
-                .scaleX(0.96f)
-                .scaleY(0.96f)
-                .setDuration(80)
-                .start()
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.animate()
+                        .scaleX(0.96f)
+                        .scaleY(0.96f)
+                        .setDuration(80)
+                        .start()
+                }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> {
+                    v.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(120)
+                        .start()
+                }
+            }
+            false
         }
-
-        android.view.MotionEvent.ACTION_UP,
-        android.view.MotionEvent.ACTION_CANCEL -> {
-            v.animate()
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(120)
-                .start()
-        }
-    }
-
-    false // important → allows click event to still trigger
-}
 
         btnAddWidget.setOnClickListener {
             requestWidgetPin()

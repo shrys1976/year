@@ -3,7 +3,6 @@ package `in`.shrys.year.util
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -35,7 +34,7 @@ object WidgetUpdateScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             dailyWorkRequest
         )
     }
@@ -72,16 +71,13 @@ class WidgetUpdateWorker(
 ) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
-        val intent = Intent(applicationContext, YearWidgetProvider::class.java).apply {
-            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        }
-
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val componentName = ComponentName(applicationContext, YearWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-        applicationContext.sendBroadcast(intent)
+        if (appWidgetIds.isNotEmpty()) {
+            YearWidgetProvider().onUpdate(applicationContext, appWidgetManager, appWidgetIds)
+        }
 
         return Result.success()
     }
